@@ -4,13 +4,14 @@ import * as admin from 'firebase-admin';
 @Injectable()
 export class FirebaseService {
   async createUser(email: string, password: string) {
-    return admin.auth().createUser({
+    const userRecord = await admin.auth().createUser({
       email,
       password,
     });
+    return userRecord;
   }
 
-  async verifyIdToken(idToken: string) {
-    return admin.auth().verifyIdToken(idToken);
+  async deleteUser(uid: string): Promise<void> {
+    await admin.auth().deleteUser(uid);
   }
 }

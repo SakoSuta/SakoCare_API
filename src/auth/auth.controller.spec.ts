@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { SignUpDto } from './dto/sign-up.dto';
+import { User } from '../users/user.entity';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -13,7 +15,18 @@ describe('AuthController', () => {
         {
           provide: AuthService,
           useValue: {
-            signUp: jest.fn(),
+            signUp: jest.fn().mockResolvedValue({
+              id: 1,
+              email: 'testuser@example.com',
+              name: 'Test User',
+              dateOfBirth: new Date('1990-01-01'),
+              firebaseUid: 'mockFirebaseUid',
+              isAdmin: false,
+              passwordHash: 'hashedPassword',
+              createdAt: new Date(),
+              reminder: false,
+            }),
+            deleteUser: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],
@@ -25,15 +38,46 @@ describe('AuthController', () => {
 
   describe('signUp', () => {
     it('should sign up a user', async () => {
-      const result = { email: 'testuser@example.com' };
-      jest.spyOn(authService, 'signUp').mockImplementation(async () => result);
+      const signUpDto: SignUpDto = {
+        email: 'testuser@example.com',
+        password: 'testpassword',
+        name: 'Test User',
+        dateOfBirth: new Date('1990-01-01'),
+      };
 
-      expect(
-        await authController.signUp({
-          email: 'testuser@example.com',
-          password: 'testpassword',
-        }),
-      ).toEqual(result);
+      const result: User = {
+        id: 1,
+        email: 'testuser@example.com',
+        name: 'Test User',
+        dateOfBirth: new Date('1990-01-01'),
+        firebaseUid: 'mockFirebaseUid',
+        isAdmin: false,
+        passwordHash: 'hashedPassword',
+        createdAt: new Date(),
+        reminder: false,
+      };
+
+      jest.spyOn(authService, 'signUp').mockResolvedValue(result);
+
+      expect(await authController.signUp(signUpDto)).toEqual(result);
+      expect(authService.signUp).toHaveBeenCalledWith(
+        signUpDto.email,
+        signUpDto.password,
+        signUpDto.name,
+        signUpDto.dateOfBirth,
+      );
+    });
+  });
+
+  describe('deleteUser', () => {
+    it('should delete a user', async () => {
+      const firebaseUid = 'mockFirebaseUid';
+      jest.spyOn(authService, 'deleteUser').mockResolvedValue();
+
+      expect(await authController.deleteUser(firebaseUid)).toEqual({
+        message: 'User deleted successfully',
+      });
+      expect(authService.deleteUser).toHaveBeenCalledWith(firebaseUid);
     });
   });
 });
