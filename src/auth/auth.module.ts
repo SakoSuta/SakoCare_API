@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { FirebaseService } from '../firebase/firebase.service';
-import { User } from '../users/user.entity';
+import { User } from '../entity/user.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User])],

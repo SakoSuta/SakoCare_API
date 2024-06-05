@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { FirebaseService } from '../firebase/firebase.service';
-import { User } from '../users/user.entity';
+import { User } from '../entity/user.entity';
 
 @Injectable()
 export class AuthService {
