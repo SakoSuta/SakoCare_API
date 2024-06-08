@@ -3,7 +3,9 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { EmotionalJournal } from './emotionalJournal.entity';
 
 @Entity('users')
 export class User {
@@ -33,4 +35,10 @@ export class User {
 
   @Column({ name: 'firebase_uid', type: 'varchar', length: 255, unique: true })
   firebaseUid: string;
+
+  @OneToMany(
+    () => EmotionalJournal,
+    (emotionalJournal) => emotionalJournal.user,
+  )
+  emotionalJournals: EmotionalJournal[];
 }
