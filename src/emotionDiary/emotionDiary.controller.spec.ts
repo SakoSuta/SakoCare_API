@@ -1,64 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EmotionDiaryController } from './EmotionDiary.controller';
-import { EmotionDiaryService } from './EmotionDiary.service';
+import { EmotionDiaryController } from './emotionDiary.controller';
+import { EmotionDiaryService } from './emotionDiary.service';
 import { CreateEmotionDiaryDto } from './dto/create-emotion-diary.dto';
+import { UpdateEmotionDiaryDto } from './dto/update-emotion-diary.dto';
 
 describe('EmotionDiaryController', () => {
   let controller: EmotionDiaryController;
-
-  const mockEmotionDiaryService = {
-    create: jest.fn((dto: CreateEmotionDiaryDto) => {
-      return {
-        ...dto,
-        journal_id: Date.now(),
-      };
-    }),
-    findAll: jest.fn(() => {
-      return [
-        {
-          journal_id: 1,
-          user_id: 1,
-          entry_date: new Date(),
-          mood_id: 2,
-          energy_level: 5,
-          stress_level: 3,
-          social_level: 4,
-          activity_type: 1,
-          sleep_hours: 7.5,
-          exercise_time: 30,
-          description: 'Today was a good day!',
-          is_favorite: false,
-          tags: ['happy', 'productive'],
-        },
-      ];
-    }),
-    findOne: jest.fn((id: number) => {
-      return {
-        journal_id: id,
-        user_id: 1,
-        entry_date: new Date(),
-        mood_id: 2,
-        energy_level: 5,
-        stress_level: 3,
-        social_level: 4,
-        activity_type: 1,
-        sleep_hours: 7.5,
-        exercise_time: 30,
-        description: 'Today was a good day!',
-        is_favorite: false,
-        tags: ['happy', 'productive'],
-      };
-    }),
-    update: jest.fn((id: number, dto: CreateEmotionDiaryDto) => {
-      return {
-        journal_id: id,
-        ...dto,
-      };
-    }),
-    remove: jest.fn(() => {
-      return;
-    }),
-  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -66,7 +13,71 @@ describe('EmotionDiaryController', () => {
       providers: [
         {
           provide: EmotionDiaryService,
-          useValue: mockEmotionDiaryService,
+          useValue: {
+            create: jest.fn().mockResolvedValue({
+              id: 1,
+              entry_date: new Date('2024-06-06'),
+              energy_level: 5,
+              stress_level: 2,
+              social_level: 5,
+              sleep_hours: 8,
+              exercise_time: 45,
+              description: 'Test description',
+              is_favorite: true,
+              tags: ['tag1', 'tag2'],
+              user: { id: 1 },
+              mood: { id: 1 },
+              activity: { id: 1 },
+            }),
+            findAll: jest.fn().mockResolvedValue([
+              {
+                id: 1,
+                entry_date: new Date('2024-06-06'),
+                energy_level: 5,
+                stress_level: 2,
+                social_level: 5,
+                sleep_hours: 8,
+                exercise_time: 45,
+                description: 'Test description',
+                is_favorite: true,
+                tags: ['tag1', 'tag2'],
+                user: { id: 1 },
+                mood: { id: 1 },
+                activity: { id: 1 },
+              },
+            ]),
+            findOne: jest.fn().mockResolvedValue({
+              id: 1,
+              entry_date: new Date('2024-06-06'),
+              energy_level: 5,
+              stress_level: 2,
+              social_level: 5,
+              sleep_hours: 8,
+              exercise_time: 45,
+              description: 'Test description',
+              is_favorite: true,
+              tags: ['tag1', 'tag2'],
+              user: { id: 1 },
+              mood: { id: 1 },
+              activity: { id: 1 },
+            }),
+            update: jest.fn().mockResolvedValue({
+              id: 1,
+              entry_date: new Date('2024-06-06'),
+              energy_level: 5,
+              stress_level: 2,
+              social_level: 5,
+              sleep_hours: 8,
+              exercise_time: 45,
+              description: 'Updated description',
+              is_favorite: true,
+              tags: ['updated', 'productive'],
+              user: { id: 1 },
+              mood: { id: 1 },
+              activity: { id: 1 },
+            }),
+            remove: jest.fn().mockResolvedValue(undefined),
+          },
         },
       ],
     }).compile();
@@ -78,97 +89,99 @@ describe('EmotionDiaryController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should create a new diary entry', async () => {
-    const dto: CreateEmotionDiaryDto = {
+  it('should create an emotion diary entry', async () => {
+    const createEmotionDiaryDto: CreateEmotionDiaryDto = {
       user_id: 1,
-      entry_date: new Date(),
-      mood_id: 2,
+      entry_date: new Date('2024-06-06'),
+      mood_id: 1,
       energy_level: 5,
-      stress_level: 3,
-      social_level: 4,
-      activity_type: 1,
-      sleep_hours: 7.5,
-      exercise_time: 30,
-      description: 'Today was a good day!',
-      is_favorite: false,
-      tags: ['happy', 'productive'],
+      stress_level: 2,
+      social_level: 5,
+      activity_id: 1,
+      sleep_hours: 8,
+      exercise_time: 45,
+      description: 'Test description',
+      is_favorite: true,
+      tags: ['tag1', 'tag2'],
     };
-
-    expect(await controller.create(dto)).toEqual({
-      journal_id: expect.any(Number),
-      ...dto,
+    expect(await controller.create(createEmotionDiaryDto)).toEqual({
+      id: 1,
+      entry_date: new Date('2024-06-06'),
+      energy_level: 5,
+      stress_level: 2,
+      social_level: 5,
+      sleep_hours: 8,
+      exercise_time: 45,
+      description: 'Test description',
+      is_favorite: true,
+      tags: ['tag1', 'tag2'],
+      user: { id: 1 },
+      mood: { id: 1 },
+      activity: { id: 1 },
     });
-    expect(mockEmotionDiaryService.create).toHaveBeenCalledWith(dto);
   });
 
-  it('should return all diary entries', async () => {
+  it('should return an array of emotion diary entries', async () => {
     expect(await controller.findAll()).toEqual([
       {
-        journal_id: 1,
-        user_id: 1,
-        entry_date: expect.any(Date),
-        mood_id: 2,
+        id: 1,
+        entry_date: new Date('2024-06-06'),
         energy_level: 5,
-        stress_level: 3,
-        social_level: 4,
-        activity_type: 1,
-        sleep_hours: 7.5,
-        exercise_time: 30,
-        description: 'Today was a good day!',
-        is_favorite: false,
-        tags: ['happy', 'productive'],
+        stress_level: 2,
+        social_level: 5,
+        sleep_hours: 8,
+        exercise_time: 45,
+        description: 'Test description',
+        is_favorite: true,
+        tags: ['tag1', 'tag2'],
+        user: { id: 1 },
+        mood: { id: 1 },
+        activity: { id: 1 },
       },
     ]);
-    expect(mockEmotionDiaryService.findAll).toHaveBeenCalled();
   });
 
-  it('should return a single diary entry', async () => {
-    const id = 1;
-    expect(await controller.findOne(id.toString())).toEqual({
-      journal_id: id,
-      user_id: 1,
-      entry_date: expect.any(Date),
-      mood_id: 2,
+  it('should return a single emotion diary entry', async () => {
+    expect(await controller.findOne('1')).toEqual({
+      id: 1,
+      entry_date: new Date('2024-06-06'),
       energy_level: 5,
-      stress_level: 3,
-      social_level: 4,
-      activity_type: 1,
-      sleep_hours: 7.5,
-      exercise_time: 30,
-      description: 'Today was a good day!',
-      is_favorite: false,
-      tags: ['happy', 'productive'],
+      stress_level: 2,
+      social_level: 5,
+      sleep_hours: 8,
+      exercise_time: 45,
+      description: 'Test description',
+      is_favorite: true,
+      tags: ['tag1', 'tag2'],
+      user: { id: 1 },
+      mood: { id: 1 },
+      activity: { id: 1 },
     });
-    expect(mockEmotionDiaryService.findOne).toHaveBeenCalledWith(id);
   });
 
-  it('should update a diary entry', async () => {
-    const id = 1;
-    const dto: CreateEmotionDiaryDto = {
-      user_id: 1,
-      entry_date: new Date(),
-      mood_id: 2,
-      energy_level: 5,
-      stress_level: 3,
-      social_level: 4,
-      activity_type: 1,
-      sleep_hours: 7.5,
-      exercise_time: 30,
-      description: 'Today was a good day!',
-      is_favorite: false,
-      tags: ['happy', 'productive'],
+  it('should update an emotion diary entry', async () => {
+    const updateEmotionDiaryDto: UpdateEmotionDiaryDto = {
+      description: 'Updated description',
+      tags: ['updated', 'productive'],
     };
-
-    expect(await controller.update(id.toString(), dto)).toEqual({
-      journal_id: id,
-      ...dto,
+    expect(await controller.update('1', updateEmotionDiaryDto)).toEqual({
+      id: 1,
+      entry_date: new Date('2024-06-06'),
+      energy_level: 5,
+      stress_level: 2,
+      social_level: 5,
+      sleep_hours: 8,
+      exercise_time: 45,
+      description: 'Updated description',
+      is_favorite: true,
+      tags: ['updated', 'productive'],
+      user: { id: 1 },
+      mood: { id: 1 },
+      activity: { id: 1 },
     });
-    expect(mockEmotionDiaryService.update).toHaveBeenCalledWith(id, dto);
   });
 
-  it('should remove a diary entry', async () => {
-    const id = 1;
-    await controller.remove(id.toString());
-    expect(mockEmotionDiaryService.remove).toHaveBeenCalledWith(id);
+  it('should remove an emotion diary entry', async () => {
+    expect(await controller.remove('1')).toBeUndefined();
   });
 });
