@@ -21,12 +21,17 @@ export class EmotionDiaryService {
     private readonly activityRepository: Repository<Activity>,
   ) {}
 
-  async create(createEmotionDiaryDto: CreateEmotionDiaryDto): Promise<EmotionalJournal> {
-    const { user_id, mood_id, activity_id, ...journalData } = createEmotionDiaryDto;
+  async create(
+    createEmotionDiaryDto: CreateEmotionDiaryDto,
+  ): Promise<EmotionalJournal> {
+    const { user_id, mood_id, activity_id, ...journalData } =
+      createEmotionDiaryDto;
 
     const user = await this.userRepository.findOne({ where: { id: user_id } });
     const mood = await this.moodRepository.findOne({ where: { id: mood_id } });
-    const activity = await this.activityRepository.findOne({ where: { id: activity_id } });
+    const activity = await this.activityRepository.findOne({
+      where: { id: activity_id },
+    });
 
     const emotionDiary = this.emotionDiaryRepository.create({
       ...journalData,
@@ -39,24 +44,38 @@ export class EmotionDiaryService {
   }
 
   async findAll(): Promise<EmotionalJournal[]> {
-    return this.emotionDiaryRepository.find({ relations: ['user', 'mood', 'activity'] });
+    return this.emotionDiaryRepository.find({
+      relations: ['user', 'mood', 'activity'],
+    });
   }
 
   async findOne(id: number): Promise<EmotionalJournal> {
-    return this.emotionDiaryRepository.findOne({ where: { id }, relations: ['user', 'mood', 'activity'] });
+    return this.emotionDiaryRepository.findOne({
+      where: { id },
+      relations: ['user', 'mood', 'activity'],
+    });
   }
 
-  async update(id: number, updateEmotionDiaryDto: UpdateEmotionDiaryDto): Promise<EmotionalJournal> {
+  async update(
+    id: number,
+    updateEmotionDiaryDto: UpdateEmotionDiaryDto,
+  ): Promise<EmotionalJournal> {
     const journal = await this.findOne(id);
 
     if (updateEmotionDiaryDto.user_id) {
-      journal.user = await this.userRepository.findOne({ where: { id: updateEmotionDiaryDto.user_id } });
+      journal.user = await this.userRepository.findOne({
+        where: { id: updateEmotionDiaryDto.user_id },
+      });
     }
     if (updateEmotionDiaryDto.mood_id) {
-      journal.mood = await this.moodRepository.findOne({ where: { id: updateEmotionDiaryDto.mood_id } });
+      journal.mood = await this.moodRepository.findOne({
+        where: { id: updateEmotionDiaryDto.mood_id },
+      });
     }
     if (updateEmotionDiaryDto.activity_id) {
-      journal.activity = await this.activityRepository.findOne({ where: { id: updateEmotionDiaryDto.activity_id } });
+      journal.activity = await this.activityRepository.findOne({
+        where: { id: updateEmotionDiaryDto.activity_id },
+      });
     }
 
     Object.assign(journal, updateEmotionDiaryDto);
