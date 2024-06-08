@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { EmotionDiaryModule } from './emotionDiary/emotionDiary.module';
 import { MoodModule } from './mood/mood.module';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { MoodModule } from './mood/mood.module';
     FirebaseModule,
     EmotionDiaryModule,
     MoodModule,
+    ActivityModule,
   ],
 })
 export class AppModule {
