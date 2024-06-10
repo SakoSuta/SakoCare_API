@@ -41,4 +41,23 @@ export class AuthService {
     await this.firebaseService.deleteUser(firebaseUid);
     await this.userRepository.delete({ firebaseUid });
   }
+
+  async verifyToken(token: string): Promise<User> {
+    const firebaseUser = await this.firebaseService.verifyToken(token);
+    if (!firebaseUser) {
+      return null;
+    }
+    const user = await this.userRepository.findOne({
+      where: { firebaseUid: firebaseUser.uid },
+    });
+    return user;
+  }
+
+  async isAdmin(userId: number): Promise<boolean> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user.isAdmin;
+  }
 }

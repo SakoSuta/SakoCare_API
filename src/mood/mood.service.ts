@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Mood } from '../entity/mood.entity';
@@ -13,24 +17,65 @@ export class MoodService {
   ) {}
 
   async create(createMoodDto: CreateMoodDto): Promise<Mood> {
-    const mood = this.moodRepository.create(createMoodDto);
-    return this.moodRepository.save(mood);
+    try {
+      const mood = this.moodRepository.create(createMoodDto);
+      return this.moodRepository.save(mood);
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to create mood');
+    }
   }
 
   async findAll(): Promise<Mood[]> {
-    return this.moodRepository.find();
+    try {
+      return this.moodRepository.find();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve moods');
+    }
   }
 
   async findOne(id: number): Promise<Mood> {
-    return this.moodRepository.findOne({ where: { id } });
+    try {
+      const mood = await this.moodRepository.findOne({ where: { id } });
+      if (!mood) {
+        throw new NotFoundException(`Mood with ID ${id} not found`);
+      }
+      return mood;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to retrieve mood');
+    }
   }
 
   async update(id: number, updateMoodDto: UpdateMoodDto): Promise<Mood> {
-    await this.moodRepository.update(id, updateMoodDto);
-    return this.findOne(id);
+    try {
+      const mood = await this.findOne(id);
+      if (!mood) {
+        throw new NotFoundException(`Mood with ID ${id} not found`);
+      }
+      Object.assign(mood, updateMoodDto);
+      return this.moodRepository.save(mood);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to update mood');
+    }
   }
 
   async remove(id: number): Promise<void> {
-    await this.moodRepository.delete(id);
+    try {
+      const mood = await this.findOne(id);
+      if (!mood) {
+        throw new NotFoundException(`Mood with ID ${id} not found`);
+      }
+      await this.moodRepository.delete(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to delete mood');
+    }
   }
 }
