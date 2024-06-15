@@ -49,7 +49,4 @@ export class EmotionalJournal {
 
   @Column({ default: false })
   is_favorite: boolean;
-
-  @Column({ type: 'text', array: true })
-  tags: string[];
 }

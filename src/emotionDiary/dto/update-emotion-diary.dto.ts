@@ -3,7 +3,6 @@ import {
   IsInt,
   IsString,
   IsBoolean,
-  IsArray,
   IsNumber,
   IsOptional,
 } from 'class-validator';
@@ -52,8 +51,4 @@ export class UpdateEmotionDiaryDto {
   @IsOptional()
   @IsBoolean()
   is_favorite?: boolean;
-
-  @IsOptional()
-  @IsArray()
-  tags?: string[];
 }
