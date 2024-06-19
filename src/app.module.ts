@@ -11,6 +11,7 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { EmotionDiaryModule } from './emotionDiary/emotionDiary.module';
 import { MoodModule } from './mood/mood.module';
 import { ActivityModule } from './activity/activity.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ActivityModule } from './activity/activity.module';
     TypeOrmModule.forFeature([User, Mood, Activity, EmotionalJournal]),
     AuthModule,
     FirebaseModule,
+    UserModule,
     EmotionDiaryModule,
     MoodModule,
     ActivityModule,

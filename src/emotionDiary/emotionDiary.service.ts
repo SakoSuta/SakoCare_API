@@ -24,8 +24,11 @@ export class EmotionDiaryService {
   async create(
     createEmotionDiaryDto: CreateEmotionDiaryDto,
   ): Promise<EmotionalJournal> {
-    const { user_id, mood_id, activity_id, ...journalData } =
+    const { user_id, mood_id, activity_id, entry_date, ...journalData } =
       createEmotionDiaryDto;
+
+    const utcEntryDate = new Date(entry_date);
+    utcEntryDate.setUTCHours(0, 0, 0, 0);
 
     const user = await this.userRepository.findOne({ where: { id: user_id } });
     const mood = await this.moodRepository.findOne({ where: { id: mood_id } });
@@ -35,6 +38,7 @@ export class EmotionDiaryService {
 
     const emotionDiary = this.emotionDiaryRepository.create({
       ...journalData,
+      entry_date: utcEntryDate,
       user,
       mood,
       activity,
@@ -77,6 +81,8 @@ export class EmotionDiaryService {
         where: { id: updateEmotionDiaryDto.activity_id },
       });
     }
+
+    console.log(journal);
 
     Object.assign(journal, updateEmotionDiaryDto);
     return this.emotionDiaryRepository.save(journal);
