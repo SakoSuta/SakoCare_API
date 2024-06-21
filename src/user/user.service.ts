@@ -42,4 +42,20 @@ export class UserService {
       relations: ['mood', 'activity'],
     });
   }
+
+  async findJournalsByUserIdAndYear(
+    userId: number,
+    year: number,
+  ): Promise<EmotionalJournal[]> {
+    const startDate = new Date(Date.UTC(year, 0, 1));
+    const endDate = new Date(Date.UTC(+year + 1, 0, 1));
+
+    return this.journalRepository.find({
+      where: {
+        user: { id: userId },
+        entry_date: Between(startDate, endDate),
+      },
+      relations: ['mood', 'activity'],
+    });
+  }
 }

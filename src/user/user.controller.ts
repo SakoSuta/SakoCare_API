@@ -45,4 +45,21 @@ export class UserController {
     }
     return journals;
   }
+
+  @Get('emotion-diary/:userId/year/:year')
+  async getUserJournalsByYear(
+    @Param('userId') userId: number,
+    @Param('year') year: number,
+  ): Promise<EmotionalJournal[]> {
+    const journals = await this.userService.findJournalsByUserIdAndYear(
+      userId,
+      year,
+    );
+    if (!journals.length) {
+      throw new NotFoundException(
+        'No journals found for this user in the specified year',
+      );
+    }
+    return journals;
+  }
 }
