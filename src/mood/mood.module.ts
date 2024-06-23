@@ -10,5 +10,6 @@ import { AdminGuard } from '../guard/admin.guard';
   imports: [TypeOrmModule.forFeature([Mood]), AuthModule],
   providers: [MoodService, AdminGuard],
   controllers: [MoodController],
+  exports: [MoodService],
 })
 export class MoodModule {}
