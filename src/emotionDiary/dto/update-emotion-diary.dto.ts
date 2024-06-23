@@ -5,6 +5,8 @@ import {
   IsBoolean,
   IsNumber,
   IsOptional,
+  Min,
+  Max,
 } from 'class-validator';
 
 export class UpdateEmotionDiaryDto {
@@ -22,14 +24,20 @@ export class UpdateEmotionDiaryDto {
 
   @IsOptional()
   @IsInt()
+  @Min(1)
+  @Max(5)
   energy_level?: number;
 
   @IsOptional()
   @IsInt()
+  @Min(1)
+  @Max(5)
   stress_level?: number;
 
   @IsOptional()
   @IsInt()
+  @Min(1)
+  @Max(5)
   social_level?: number;
 
   @IsOptional()
@@ -38,10 +46,12 @@ export class UpdateEmotionDiaryDto {
 
   @IsOptional()
   @IsNumber()
+  @Max(24)
   sleep_hours?: number;
 
   @IsOptional()
   @IsInt()
+  @Max(24)
   exercise_time?: number;
 
   @IsOptional()
