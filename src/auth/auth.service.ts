@@ -42,6 +42,18 @@ export class AuthService {
     await this.userRepository.delete({ firebaseUid });
   }
 
+  findAllUsers(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+
+  findUserById(id: number): Promise<User> {
+    return this.userRepository.findOne({ where: { id } });
+  }
+
+  findUserByEmail(email: string): Promise<User> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
   async verifyToken(token: string): Promise<User> {
     const firebaseUser = await this.firebaseService.verifyToken(token);
     if (!firebaseUser) {

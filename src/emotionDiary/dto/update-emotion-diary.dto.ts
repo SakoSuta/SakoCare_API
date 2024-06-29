@@ -1,6 +1,7 @@
 import {
   IsDate,
   IsInt,
+  IsArray,
   IsString,
   IsBoolean,
   IsNumber,
@@ -41,8 +42,9 @@ export class UpdateEmotionDiaryDto {
   social_level?: number;
 
   @IsOptional()
-  @IsInt()
-  activity_id?: number;
+  @IsArray()
+  @IsInt({ each: true })
+  activity_id?: number[];
 
   @IsOptional()
   @IsNumber()

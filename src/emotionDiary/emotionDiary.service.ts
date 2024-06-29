@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { EmotionalJournal } from '../entity/emotionalJournal.entity';
 import { User } from '../entity/user.entity';
 import { Mood } from '../entity/mood.entity';
@@ -32,32 +32,50 @@ export class EmotionDiaryService {
 
     const user = await this.userRepository.findOne({ where: { id: user_id } });
     const mood = await this.moodRepository.findOne({ where: { id: mood_id } });
-    const activity = await this.activityRepository.findOne({
-      where: { id: activity_id },
+    const activities = await this.activityRepository.find({
+      where: { id: In(activity_id) },
     });
+
+    const activityId = activities.map((activity) => activity.id);
 
     const emotionDiary = this.emotionDiaryRepository.create({
       ...journalData,
       entry_date: utcEntryDate,
       user,
       mood,
-      activity,
+      activities: activityId,
     });
 
     return this.emotionDiaryRepository.save(emotionDiary);
   }
 
   async findAll(): Promise<EmotionalJournal[]> {
-    return this.emotionDiaryRepository.find({
-      relations: ['user', 'mood', 'activity'],
+    const journals = await this.emotionDiaryRepository.find({
+      relations: ['user', 'mood'],
     });
+
+    for (const journal of journals) {
+      journal['activityDetails'] = await this.activityRepository.find({
+        where: { id: In(journal.activities) },
+      });
+    }
+
+    return journals;
   }
 
   async findOne(id: number): Promise<EmotionalJournal> {
-    return this.emotionDiaryRepository.findOne({
+    const journal = await this.emotionDiaryRepository.findOne({
       where: { id },
-      relations: ['user', 'mood', 'activity'],
+      relations: ['user', 'mood'],
     });
+
+    if (journal) {
+      journal['activityDetails'] = await this.activityRepository.find({
+        where: { id: In(journal.activities) },
+      });
+    }
+
+    return journal;
   }
 
   async update(
@@ -77,12 +95,11 @@ export class EmotionDiaryService {
       });
     }
     if (updateEmotionDiaryDto.activity_id) {
-      journal.activity = await this.activityRepository.findOne({
-        where: { id: updateEmotionDiaryDto.activity_id },
+      const activities = await this.activityRepository.find({
+        where: { id: In(updateEmotionDiaryDto.activity_id) },
       });
+      journal.activities = activities.map((activity) => activity.id);
     }
-
-    console.log(journal);
 
     Object.assign(journal, updateEmotionDiaryDto);
     return this.emotionDiaryRepository.save(journal);

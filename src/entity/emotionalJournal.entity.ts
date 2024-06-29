@@ -7,7 +7,6 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Mood } from './mood.entity';
-import { Activity } from './activity.entity';
 
 @Entity('emotional_journal')
 export class EmotionalJournal {
@@ -25,6 +24,9 @@ export class EmotionalJournal {
   @JoinColumn({ name: 'mood_id' })
   mood: Mood;
 
+  @Column('int', { array: true, default: [] })
+  activities: number[];
+
   @Column({ type: 'smallint' })
   energy_level: number;
 
@@ -33,10 +35,6 @@ export class EmotionalJournal {
 
   @Column({ type: 'smallint' })
   social_level: number;
-
-  @ManyToOne(() => Activity, (activity) => activity.emotionalJournals)
-  @JoinColumn({ name: 'activity_id' })
-  activity: Activity;
 
   @Column({ type: 'decimal', precision: 4, scale: 2 })
   sleep_hours: number;

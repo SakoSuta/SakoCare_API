@@ -4,9 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
+  // OneToMany,
 } from 'typeorm';
-import { UserResources } from './userResources.entity';
+// import { UserResources } from './userResources.entity';
 
 @Entity('resources')
 export class Resource {
@@ -31,6 +31,6 @@ export class Resource {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => UserResources, (userResources) => userResources.resource)
-  userResources: UserResources[];
+  // @OneToMany(() => UserResources, (userResources) => userResources.resource)
+  // userResources: UserResources[];
 }

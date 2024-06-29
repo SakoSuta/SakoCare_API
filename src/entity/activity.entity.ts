@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { EmotionalJournal } from './emotionalJournal.entity';
 
 @Entity('activity')
@@ -9,9 +9,9 @@ export class Activity {
   @Column({ name: 'activity_type', type: 'varchar', length: 50 })
   activityType: string;
 
-  @OneToMany(
+  @ManyToOne(
     () => EmotionalJournal,
-    (emotionalJournal) => emotionalJournal.activity,
+    (emotionalJournal) => emotionalJournal.activities,
   )
-  emotionalJournals: EmotionalJournal[];
+  emotionalJournal: EmotionalJournal;
 }

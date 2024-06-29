@@ -1,6 +1,7 @@
 import {
   IsDate,
   IsInt,
+  IsArray,
   IsString,
   IsBoolean,
   IsNumber,
@@ -34,8 +35,9 @@ export class CreateEmotionDiaryDto {
   @Max(5)
   social_level: number;
 
-  @IsInt()
-  activity_id: number;
+  @IsArray()
+  @IsInt({ each: true })
+  activity_id: number[];
 
   @IsNumber()
   @Max(24)
