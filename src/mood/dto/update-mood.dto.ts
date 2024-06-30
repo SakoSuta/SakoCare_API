@@ -8,4 +8,8 @@ export class UpdateMoodDto {
   @IsOptional()
   @IsString()
   type?: string;
+
+  @IsOptional()
+  @IsString()
+  color?: string;
 }

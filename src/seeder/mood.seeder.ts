@@ -8,11 +8,11 @@ export class MoodSeeder {
 
   async seed() {
     const moods: CreateMoodDto[] = [
-      { name: 'Very_Sad', type: 'negative' },
-      { name: 'Sad', type: 'negative' },
-      { name: 'Neutral', type: 'neutral' },
-      { name: 'Happy', type: 'positive' },
-      { name: 'Very_Happy', type: 'positive' },
+      { name: 'Very_Sad', type: 'negative', color: '#FF0000' },
+      { name: 'Sad', type: 'negative', color: '#FF5733' },
+      { name: 'Neutral', type: 'neutral', color: '#FFFF00' },
+      { name: 'Happy', type: 'positive', color: '#33FF57' },
+      { name: 'Very_Happy', type: 'positive', color: '#00FF00' },
     ];
 
     for (const mood of moods) {

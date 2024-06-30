@@ -6,4 +6,7 @@ export class CreateMoodDto {
 
   @IsString()
   type: string;
+
+  @IsString()
+  color: string;
 }

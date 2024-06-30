@@ -12,6 +12,9 @@ export class Mood {
   @Column({ type: 'varchar', length: 50 })
   type: string;
 
+  @Column({ type: 'varchar', length: 50 })
+  color: string;
+
   @OneToMany(
     () => EmotionalJournal,
     (emotionalJournal) => emotionalJournal.mood,
