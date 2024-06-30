@@ -6,7 +6,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { EmotionalJournal } from './emotionalJournal.entity';
-// import { UserResources } from './userResources.entity';
+import { UserResources } from './userResources.entity';
 
 @Entity('users')
 export class User {
@@ -43,6 +43,6 @@ export class User {
   )
   emotionalJournals: EmotionalJournal[];
 
-  // @OneToMany(() => UserResources, (userResources) => userResources.user)
-  // userResources: UserResources[];
+  @OneToMany(() => UserResources, (userResources) => userResources.user)
+  userResources: UserResources[];
 }
