@@ -1,11 +1,13 @@
-// src/userResources/userResources.service.ts
-
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThan } from 'typeorm';
+
 import { EmotionalJournal } from '../entity/emotionalJournal.entity';
 import { Resource } from '../entity/resource.entity';
 import { UserResources } from '../entity/userResources.entity';
+import { User } from '../entity/user.entity';
+
+import { UpdateUserResourceDto } from './dto/update-user-resource.dto';
 
 @Injectable()
 export class UserResourcesService {
@@ -16,6 +18,8 @@ export class UserResourcesService {
     private readonly resourceRepository: Repository<Resource>,
     @InjectRepository(UserResources)
     private readonly userResourcesRepository: Repository<UserResources>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async analyzeUserJournals(userId: number, startDate: Date, endDate: Date) {
@@ -138,5 +142,50 @@ export class UserResourcesService {
     } else {
       return { message: 'No new resources to recommend at this time.' };
     }
+  }
+
+  async findAll() {
+    return this.userResourcesRepository.find();
+  }
+
+  async findOne(id: number): Promise<UserResources> {
+    const userResources = await this.userResourcesRepository.findOne({
+      where: { id },
+    });
+    if (!userResources) {
+      throw new NotFoundException(`Resource with ID ${id} not found`);
+    }
+    return userResources;
+  }
+
+  async update(id: number, updateUserResourceDto: UpdateUserResourceDto) {
+    const existingUserResource = await this.userResourcesRepository.findOne({
+      where: { id },
+    });
+
+    if (updateUserResourceDto.userId) {
+      const user = await this.userRepository.findOne({
+        where: { id: updateUserResourceDto.userId },
+      });
+      existingUserResource.user = user;
+    }
+
+    if (updateUserResourceDto.resourceId) {
+      const resource = await this.resourceRepository.findOne({
+        where: { id: updateUserResourceDto.resourceId },
+      });
+      existingUserResource.resource = resource;
+    }
+
+    if (updateUserResourceDto.category) {
+      existingUserResource.category = updateUserResourceDto.category;
+    }
+
+    await this.userResourcesRepository.save(existingUserResource);
+    return existingUserResource;
+  }
+
+  async remove(id: number) {
+    return this.userResourcesRepository.delete({ id });
   }
 }
