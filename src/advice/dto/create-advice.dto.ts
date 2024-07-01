@@ -12,4 +12,7 @@ export class CreateAdviceDto {
 
   @IsUrl()
   url?: string;
+
+  @IsString()
+  category: string;
 }

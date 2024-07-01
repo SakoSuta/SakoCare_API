@@ -16,4 +16,8 @@ export class UpdateAdviceDto {
   @IsOptional()
   @IsUrl()
   url?: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
 }
