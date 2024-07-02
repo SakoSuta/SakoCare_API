@@ -3,9 +3,11 @@ import { ActivityController } from './activity.controller';
 import { ActivityService } from './activity.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
+import { Activity } from '../entity/activity.entity';
 
 describe('ActivityController', () => {
-  let controller: ActivityController;
+  let activityController: ActivityController;
+  let activityService: ActivityService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -14,63 +16,69 @@ describe('ActivityController', () => {
         {
           provide: ActivityService,
           useValue: {
-            create: jest
-              .fn()
-              .mockResolvedValue({ id: 1, activityType: 'Read' }),
-            findAll: jest
-              .fn()
-              .mockResolvedValue([{ id: 1, activityType: 'Read' }]),
-            findOne: jest
-              .fn()
-              .mockResolvedValue({ id: 1, activityType: 'Read' }),
-            update: jest
-              .fn()
-              .mockResolvedValue({ id: 1, activityType: 'Updated Activity' }),
+            create: jest.fn().mockResolvedValue(new Activity()),
+            findAll: jest.fn().mockResolvedValue([new Activity()]),
+            findOne: jest.fn().mockResolvedValue(new Activity()),
+            update: jest.fn().mockResolvedValue(new Activity()),
             remove: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],
     }).compile();
 
-    controller = module.get<ActivityController>(ActivityController);
+    activityController = module.get<ActivityController>(ActivityController);
+    activityService = module.get<ActivityService>(ActivityService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(activityController).toBeDefined();
   });
 
-  it('should create an activity', async () => {
-    const createActivityDto: CreateActivityDto = { activityType: 'Read' };
-    expect(await controller.create(createActivityDto)).toEqual({
-      id: 1,
-      activityType: 'Read',
+  describe('create', () => {
+    it('should create a new activity', async () => {
+      const createActivityDto: CreateActivityDto = { activityType: 'Running' };
+      const result = await activityController.create(createActivityDto);
+      expect(result).toBeInstanceOf(Activity);
+      expect(activityService.create).toHaveBeenCalledWith(createActivityDto);
     });
   });
 
-  it('should return an array of activities', async () => {
-    expect(await controller.findAll()).toEqual([
-      { id: 1, activityType: 'Read' },
-    ]);
-  });
-
-  it('should return a single activity', async () => {
-    expect(await controller.findOne('1')).toEqual({
-      id: 1,
-      activityType: 'Read',
+  describe('findAll', () => {
+    it('should return an array of activities', async () => {
+      const result = await activityController.findAll();
+      expect(result).toBeInstanceOf(Array);
+      expect(activityService.findAll).toHaveBeenCalled();
     });
   });
 
-  it('should update an activity', async () => {
-    const updateActivityDto: UpdateActivityDto = {
-      activityType: 'Updated Activity',
-    };
-    expect(await controller.update('1', updateActivityDto)).toEqual({
-      id: 1,
-      activityType: 'Updated Activity',
+  describe('findOne', () => {
+    it('should return a single activity', async () => {
+      const id = '1';
+      const result = await activityController.findOne(id);
+      expect(result).toBeInstanceOf(Activity);
+      expect(activityService.findOne).toHaveBeenCalledWith(+id);
     });
   });
 
-  it('should remove an activity', async () => {
-    expect(await controller.remove('1')).toBeUndefined();
+  describe('update', () => {
+    it('should update an activity', async () => {
+      const id = '1';
+      const updateActivityDto: UpdateActivityDto = { activityType: 'Swimming' };
+      const result = await activityController.update(id, updateActivityDto);
+      expect(result).toBeInstanceOf(Activity);
+      expect(activityService.update).toHaveBeenCalledWith(
+        +id,
+        updateActivityDto,
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove an activity', async () => {
+      const id = '1';
+      const result = await activityController.remove(id);
+      expect(result).toBeUndefined();
+      expect(activityService.remove).toHaveBeenCalledWith(+id);
+    });
   });
 });

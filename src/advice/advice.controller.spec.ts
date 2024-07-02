@@ -1,187 +1,93 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EmotionDiaryController } from './advice.controller';
-import { EmotionDiaryService } from './advice.service';
-import { CreateEmotionDiaryDto } from './dto/create-advice.dto';
-import { UpdateEmotionDiaryDto } from './dto/update-advice.dto';
+import { AdviceController } from './advice.controller';
+import { AdviceService } from './advice.service';
+import { CreateAdviceDto } from './dto/create-advice.dto';
+import { UpdateAdviceDto } from './dto/update-advice.dto';
+import { Resource } from '../entity/resource.entity';
 
-describe('EmotionDiaryController', () => {
-  let controller: EmotionDiaryController;
+describe('AdviceController', () => {
+  let adviceController: AdviceController;
+  let adviceService: AdviceService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [EmotionDiaryController],
+      controllers: [AdviceController],
       providers: [
         {
-          provide: EmotionDiaryService,
+          provide: AdviceService,
           useValue: {
-            create: jest.fn().mockResolvedValue({
-              id: 1,
-              entry_date: new Date('2024-06-06'),
-              energy_level: 5,
-              stress_level: 2,
-              social_level: 5,
-              sleep_hours: 8,
-              exercise_time: 45,
-              description: 'Test description',
-              is_favorite: true,
-              tags: ['tag1', 'tag2'],
-              user: { id: 1 },
-              mood: { id: 1 },
-              activity: { id: 1 },
-            }),
-            findAll: jest.fn().mockResolvedValue([
-              {
-                id: 1,
-                entry_date: new Date('2024-06-06'),
-                energy_level: 5,
-                stress_level: 2,
-                social_level: 5,
-                sleep_hours: 8,
-                exercise_time: 45,
-                description: 'Test description',
-                is_favorite: true,
-                tags: ['tag1', 'tag2'],
-                user: { id: 1 },
-                mood: { id: 1 },
-                activity: { id: 1 },
-              },
-            ]),
-            findOne: jest.fn().mockResolvedValue({
-              id: 1,
-              entry_date: new Date('2024-06-06'),
-              energy_level: 5,
-              stress_level: 2,
-              social_level: 5,
-              sleep_hours: 8,
-              exercise_time: 45,
-              description: 'Test description',
-              is_favorite: true,
-              tags: ['tag1', 'tag2'],
-              user: { id: 1 },
-              mood: { id: 1 },
-              activity: { id: 1 },
-            }),
-            update: jest.fn().mockResolvedValue({
-              id: 1,
-              entry_date: new Date('2024-06-06'),
-              energy_level: 5,
-              stress_level: 2,
-              social_level: 5,
-              sleep_hours: 8,
-              exercise_time: 45,
-              description: 'Updated description',
-              is_favorite: true,
-              tags: ['updated', 'productive'],
-              user: { id: 1 },
-              mood: { id: 1 },
-              activity: { id: 1 },
-            }),
+            create: jest.fn().mockResolvedValue(new Resource()),
+            findAll: jest.fn().mockResolvedValue([new Resource()]),
+            findOne: jest.fn().mockResolvedValue(new Resource()),
+            update: jest.fn().mockResolvedValue(new Resource()),
             remove: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],
     }).compile();
 
-    controller = module.get<EmotionDiaryController>(EmotionDiaryController);
+    adviceController = module.get<AdviceController>(AdviceController);
+    adviceService = module.get<AdviceService>(AdviceService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(adviceController).toBeDefined();
   });
 
-  it('should create an emotion diary entry', async () => {
-    const createEmotionDiaryDto: CreateEmotionDiaryDto = {
-      user_id: 1,
-      entry_date: new Date('2024-06-06'),
-      mood_id: 1,
-      energy_level: 5,
-      stress_level: 2,
-      social_level: 5,
-      activity_id: 1,
-      sleep_hours: 8,
-      exercise_time: 45,
-      description: 'Test description',
-      is_favorite: true,
-      tags: ['tag1', 'tag2'],
-    };
-    expect(await controller.create(createEmotionDiaryDto)).toEqual({
-      id: 1,
-      entry_date: new Date('2024-06-06'),
-      energy_level: 5,
-      stress_level: 2,
-      social_level: 5,
-      sleep_hours: 8,
-      exercise_time: 45,
-      description: 'Test description',
-      is_favorite: true,
-      tags: ['tag1', 'tag2'],
-      user: { id: 1 },
-      mood: { id: 1 },
-      activity: { id: 1 },
+  describe('create', () => {
+    it('should create a new resource', async () => {
+      const createAdviceDto: CreateAdviceDto = {
+        title: 'Advice Title',
+        description: 'Advice Description',
+        content: 'Advice Content',
+        url: 'http://example.com',
+        category: 'General',
+      };
+      const result = await adviceController.create(createAdviceDto);
+      expect(result).toBeInstanceOf(Resource);
+      expect(adviceService.create).toHaveBeenCalledWith(createAdviceDto);
     });
   });
 
-  it('should return an array of emotion diary entries', async () => {
-    expect(await controller.findAll()).toEqual([
-      {
-        id: 1,
-        entry_date: new Date('2024-06-06'),
-        energy_level: 5,
-        stress_level: 2,
-        social_level: 5,
-        sleep_hours: 8,
-        exercise_time: 45,
-        description: 'Test description',
-        is_favorite: true,
-        tags: ['tag1', 'tag2'],
-        user: { id: 1 },
-        mood: { id: 1 },
-        activity: { id: 1 },
-      },
-    ]);
-  });
-
-  it('should return a single emotion diary entry', async () => {
-    expect(await controller.findOne('1')).toEqual({
-      id: 1,
-      entry_date: new Date('2024-06-06'),
-      energy_level: 5,
-      stress_level: 2,
-      social_level: 5,
-      sleep_hours: 8,
-      exercise_time: 45,
-      description: 'Test description',
-      is_favorite: true,
-      tags: ['tag1', 'tag2'],
-      user: { id: 1 },
-      mood: { id: 1 },
-      activity: { id: 1 },
+  describe('findAll', () => {
+    it('should return an array of resources', async () => {
+      const result = await adviceController.findAll();
+      expect(result).toBeInstanceOf(Array);
+      expect(adviceService.findAll).toHaveBeenCalled();
     });
   });
 
-  it('should update an emotion diary entry', async () => {
-    const updateEmotionDiaryDto: UpdateEmotionDiaryDto = {
-      description: 'Updated description',
-      tags: ['updated', 'productive'],
-    };
-    expect(await controller.update('1', updateEmotionDiaryDto)).toEqual({
-      id: 1,
-      entry_date: new Date('2024-06-06'),
-      energy_level: 5,
-      stress_level: 2,
-      social_level: 5,
-      sleep_hours: 8,
-      exercise_time: 45,
-      description: 'Updated description',
-      is_favorite: true,
-      tags: ['updated', 'productive'],
-      user: { id: 1 },
-      mood: { id: 1 },
-      activity: { id: 1 },
+  describe('findOne', () => {
+    it('should return a single resource', async () => {
+      const id = '1';
+      const result = await adviceController.findOne(+id);
+      expect(result).toBeInstanceOf(Resource);
+      expect(adviceService.findOne).toHaveBeenCalledWith(+id);
     });
   });
 
-  it('should remove an emotion diary entry', async () => {
-    expect(await controller.remove('1')).toBeUndefined();
+  describe('update', () => {
+    it('should update a resource', async () => {
+      const id = '1';
+      const updateAdviceDto: UpdateAdviceDto = {
+        title: 'Updated Title',
+        description: 'Updated Description',
+        content: 'Updated Content',
+        url: 'http://updated-example.com',
+        category: 'Updated Category',
+      };
+      const result = await adviceController.update(+id, updateAdviceDto);
+      expect(result).toBeInstanceOf(Resource);
+      expect(adviceService.update).toHaveBeenCalledWith(+id, updateAdviceDto);
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove a resource', async () => {
+      const id = '1';
+      const result = await adviceController.remove(+id);
+      expect(result).toBeUndefined();
+      expect(adviceService.remove).toHaveBeenCalledWith(+id);
+    });
   });
 });

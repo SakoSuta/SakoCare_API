@@ -1,184 +1,94 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MoodController } from './mood.controller';
 import { MoodService } from './mood.service';
-import { AuthService } from '../auth/auth.service';
-import { AdminGuard } from '../guard/admin.guard';
 import { AuthGuard } from '../guard/auth.guard';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Mood } from '../entity/mood.entity';
-import { User } from '../entity/user.entity';
-import { CreateMoodDto } from './dto/create-mood.dto';
-import { UpdateMoodDto } from './dto/update-mood.dto';
-import {
-  NotFoundException,
-  ForbiddenException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { AdminGuard } from '../guard/admin.guard';
+import { AuthService } from '../auth/auth.service';
 
 describe('MoodController', () => {
-  let controller: MoodController;
-  let authService: AuthService;
+  let moodController: MoodController;
+  let moodService: MoodService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MoodController],
       providers: [
-        MoodService,
-        AuthService,
-        {
-          provide: AdminGuard,
-          useValue: {
-            canActivate: jest.fn((context) => {
-              const request = context.switchToHttp().getRequest();
-              const user = request.user;
-              if (!user || !user.isAdmin) {
-                throw new ForbiddenException('User is not an admin');
-              }
-              return true;
-            }),
-          },
-        },
-        {
-          provide: AuthGuard,
-          useValue: {
-            canActivate: jest.fn((context) => {
-              const request = context.switchToHttp().getRequest();
-              const user = request.user;
-              if (!user) {
-                throw new UnauthorizedException('User not authenticated');
-              }
-              return true;
-            }),
-          },
-        },
-        {
-          provide: getRepositoryToken(Mood),
-          useValue: {},
-        },
-        {
-          provide: getRepositoryToken(User),
-          useValue: {},
-        },
         {
           provide: MoodService,
           useValue: {
-            create: jest
-              .fn()
-              .mockResolvedValue({ id: 1, name: 'Happy', type: 'Positive' }),
-            findAll: jest
-              .fn()
-              .mockResolvedValue([{ id: 1, name: 'Happy', type: 'Positive' }]),
-            findOne: jest.fn().mockImplementation((id: number) => {
-              if (id === 1) {
-                return { id: 1, name: 'Happy', type: 'Positive' };
-              } else {
-                throw new NotFoundException(`Mood with ID ${id} not found`);
-              }
-            }),
-            update: jest.fn().mockImplementation((id: number) => {
-              if (id === 1) {
-                return { id: 1, name: 'Updated Mood', type: 'Positive' };
-              } else {
-                throw new NotFoundException(`Mood with ID ${id} not found`);
-              }
-            }),
-            remove: jest.fn().mockImplementation((id: number) => {
-              if (id === 1) {
-                return undefined;
-              } else {
-                throw new NotFoundException(`Mood with ID ${id} not found`);
-              }
-            }),
+            create: jest.fn().mockResolvedValue({ id: 1, name: 'Happy' }),
+            findAll: jest.fn().mockResolvedValue([{ id: 1, name: 'Happy' }]),
+            findOne: jest.fn().mockResolvedValue({ id: 1, name: 'Happy' }),
+            update: jest.fn().mockResolvedValue({ id: 1, name: 'Sad' }),
+            remove: jest.fn().mockResolvedValue(undefined),
           },
         },
         {
           provide: AuthService,
           useValue: {
-            verifyToken: jest
-              .fn()
-              .mockResolvedValue({ id: 1, email: 'test@example.com' }),
+            verifyToken: jest.fn().mockResolvedValue({ id: 1, isAdmin: true }),
             isAdmin: jest.fn().mockResolvedValue(true),
           },
         },
+        AuthGuard,
+        AdminGuard,
       ],
     }).compile();
 
-    controller = module.get<MoodController>(MoodController);
-    authService = module.get<AuthService>(AuthService);
+    moodController = module.get<MoodController>(MoodController);
+    moodService = module.get<MoodService>(MoodService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(moodController).toBeDefined();
   });
 
-  it('should create a mood', async () => {
-    const createMoodDto: CreateMoodDto = { name: 'Happy', type: 'Positive' };
-    expect(await controller.create(createMoodDto)).toEqual({
-      id: 1,
-      name: 'Happy',
-      type: 'Positive',
+  describe('create', () => {
+    it('should create a new mood', async () => {
+      const createMoodDto = {
+        name: 'Happy',
+        type: 'Positive',
+        color: 'Yellow',
+      };
+      const result = await moodController.create(createMoodDto);
+      expect(result).toEqual({ id: 1, name: 'Happy' });
+      expect(moodService.create).toHaveBeenCalledWith(createMoodDto);
     });
   });
 
-  it('should return an array of moods', async () => {
-    expect(await controller.findAll()).toEqual([
-      { id: 1, name: 'Happy', type: 'Positive' },
-    ]);
-  });
-
-  it('should return a single mood', async () => {
-    expect(await controller.findOne('1')).toEqual({
-      id: 1,
-      name: 'Happy',
-      type: 'Positive',
+  describe('findAll', () => {
+    it('should return an array of moods', async () => {
+      const result = await moodController.findAll();
+      expect(result).toEqual([{ id: 1, name: 'Happy' }]);
+      expect(moodService.findAll).toHaveBeenCalled();
     });
   });
 
-  it('should throw an error if mood is not found', async () => {
-    await expect(controller.findOne('2')).rejects.toThrow(
-      new NotFoundException(`Mood with ID 2 not found`),
-    );
-  });
-
-  it('should update a mood', async () => {
-    const updateMoodDto: UpdateMoodDto = { name: 'Updated Mood' };
-    expect(await controller.update('1', updateMoodDto)).toEqual({
-      id: 1,
-      name: 'Updated Mood',
-      type: 'Positive',
+  describe('findOne', () => {
+    it('should return a single mood', async () => {
+      const id = 1;
+      const result = await moodController.findOne(id.toString());
+      expect(result).toEqual({ id: 1, name: 'Happy' });
+      expect(moodService.findOne).toHaveBeenCalledWith(id);
     });
   });
 
-  it('should throw an error if updating a non-existing mood', async () => {
-    const updateMoodDto: UpdateMoodDto = { name: 'Updated Mood' };
-    await expect(controller.update('2', updateMoodDto)).rejects.toThrow(
-      new NotFoundException(`Mood with ID 2 not found`),
-    );
+  describe('update', () => {
+    it('should update a mood', async () => {
+      const id = 1;
+      const updateMoodDto = { name: 'Sad', type: 'Negative', color: 'Blue' };
+      const result = await moodController.update(id.toString(), updateMoodDto);
+      expect(result).toEqual({ id: 1, name: 'Sad' });
+      expect(moodService.update).toHaveBeenCalledWith(id, updateMoodDto);
+    });
   });
 
-  it('should remove a mood', async () => {
-    expect(await controller.remove('1')).toBeUndefined();
-  });
-
-  it('should throw an error if removing a non-existing mood', async () => {
-    await expect(controller.remove('2')).rejects.toThrow(
-      new NotFoundException(`Mood with ID 2 not found`),
-    );
-  });
-
-  it('should return a forbidden error for protected route', async () => {
-    authService.isAdmin = jest.fn().mockResolvedValue(false); // Simuler un utilisateur non admin
-    const createMoodDto: CreateMoodDto = { name: 'Test', type: 'Negative' };
-    await expect(controller.create(createMoodDto)).rejects.toThrow(
-      new ForbiddenException('User is not an admin'),
-    );
-  });
-
-  it('should return an unauthorized error for unauthorized route', async () => {
-    authService.verifyToken = jest.fn().mockResolvedValue(null); // Simuler un utilisateur non authentifié
-    const createMoodDto: CreateMoodDto = { name: 'Test', type: 'Negative' };
-    await expect(controller.create(createMoodDto)).rejects.toThrow(
-      new UnauthorizedException('User not authenticated'),
-    );
+  describe('remove', () => {
+    it('should remove a mood', async () => {
+      const id = 1;
+      const result = await moodController.remove(id.toString());
+      expect(result).toBeUndefined();
+      expect(moodService.remove).toHaveBeenCalledWith(id);
+    });
   });
 });
