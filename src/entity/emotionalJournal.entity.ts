@@ -39,7 +39,7 @@ export class EmotionalJournal {
   @Column({ type: 'decimal', precision: 4, scale: 2, nullable: true })
   sleep_hours: number;
 
-  @Column({ type: 'smallint', nullable: true })
+  @Column({ type: 'decimal', nullable: true })
   exercise_time: number;
 
   @Column({ type: 'text', nullable: true })
