@@ -29,18 +29,35 @@ export class UserController {
     return journals;
   }
 
-  @Get('emotion-diary/:id/by-date')
+  @Get('emotion-diary/:userId/by-date')
   async getUserJournalsByDate(
-    @Param('id') id: number,
+    @Param('userId') userId: number,
     @Query('date') date: string,
   ): Promise<EmotionalJournal[]> {
     const journals = await this.userService.findJournalsByUserIdAndDate(
-      id,
+      userId,
       new Date(date),
     );
     if (!journals.length) {
       throw new NotFoundException(
         'No journals found for this user on the specified date',
+      );
+    }
+    return journals;
+  }
+
+  @Get('emotion-diary/:userId/week/:startDate')
+  async getUserJournalsByWeek(
+    @Param('userId') userId: number,
+    @Param('startDate') startDate: string,
+  ): Promise<EmotionalJournal[]> {
+    const journals = await this.userService.findJournalsByUserIdAndWeek(
+      userId,
+      new Date(startDate),
+    );
+    if (!journals.length) {
+      throw new NotFoundException(
+        'No journals found for this user in the specified week',
       );
     }
     return journals;

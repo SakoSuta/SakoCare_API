@@ -58,6 +58,34 @@ export class UserService {
     return journals;
   }
 
+  async findJournalsByUserIdAndWeek(
+    userId: number,
+    startDate: Date,
+  ): Promise<EmotionalJournal[]> {
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+    endDate.setUTCHours(23, 59, 59, 999);
+
+    const journals = await this.journalRepository.find({
+      where: {
+        user: { id: userId },
+        entry_date: Between(startDate, endDate),
+      },
+      relations: ['mood'],
+    });
+
+    for (const journal of journals) {
+      if (journal.activities && journal.activities.length > 0) {
+        journal['activityDetails'] = await this.activityRepository.find({
+          where: { id: In(journal.activities) },
+        });
+      } else {
+        journal['activityDetails'] = [];
+      }
+    }
+    return journals;
+  }
+
   async findJournalsByUserIdAndYear(
     userId: number,
     year: number,
