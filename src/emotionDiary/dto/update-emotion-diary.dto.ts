@@ -9,6 +9,7 @@ import {
   Min,
   Max,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateEmotionDiaryDto {
   @IsOptional()
@@ -17,6 +18,7 @@ export class UpdateEmotionDiaryDto {
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   entry_date?: Date;
 
   @IsOptional()

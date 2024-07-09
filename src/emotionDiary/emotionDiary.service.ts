@@ -38,6 +38,16 @@ export class EmotionDiaryService {
 
     const activityId = activities.map((activity) => activity.id);
 
+    const existingJournal = await this.emotionDiaryRepository.findOne({
+      where: { user: user, entry_date: utcEntryDate },
+    });
+
+    if (existingJournal) {
+      throw new Error(
+        'An entry already exists for this user on the specified date.',
+      );
+    }
+
     const emotionDiary = this.emotionDiaryRepository.create({
       ...journalData,
       entry_date: utcEntryDate,

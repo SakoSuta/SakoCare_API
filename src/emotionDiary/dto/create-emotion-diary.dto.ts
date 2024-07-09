@@ -9,12 +9,14 @@ import {
   Min,
   Max,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateEmotionDiaryDto {
   @IsInt()
   user_id: number;
 
   @IsDate()
+  @Type(() => Date)
   entry_date: Date;
 
   @IsInt()
