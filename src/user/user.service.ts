@@ -6,6 +6,7 @@ import { User } from '../entity/user.entity';
 
 import { EmotionalJournal } from '../entity/emotionalJournal.entity';
 import { Activity } from '../entity/activity.entity';
+import { UserResources } from '../entity/userResources.entity';
 
 @Injectable()
 export class UserService {
@@ -16,6 +17,8 @@ export class UserService {
     private readonly journalRepository: Repository<EmotionalJournal>,
     @InjectRepository(Activity)
     private readonly activityRepository: Repository<Activity>,
+    @InjectRepository(UserResources)
+    private readonly userResourcesRepository: Repository<UserResources>,
   ) {}
 
   async findIdByFirebaseUid(firebaseUid: string): Promise<number> {
@@ -131,5 +134,12 @@ export class UserService {
       }
     }
     return journals;
+  }
+
+  async findUserResourcesByUserId(userId: number): Promise<UserResources[]> {
+    return this.userResourcesRepository.find({
+      where: { user: { id: userId } },
+      relations: ['resource'],
+    });
   }
 }

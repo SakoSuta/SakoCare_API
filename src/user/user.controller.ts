@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { EmotionalJournal } from '../entity/emotionalJournal.entity';
+import { UserResources } from '../entity/userResources.entity';
 
 @Controller('user')
 export class UserController {
@@ -95,5 +96,16 @@ export class UserController {
       );
     }
     return journals;
+  }
+
+  @Get('user-resources/:userId')
+  async getUserResources(
+    @Param('userId') userId: number,
+  ): Promise<UserResources[]> {
+    const resources = await this.userService.findUserResourcesByUserId(userId);
+    if (!resources.length) {
+      throw new NotFoundException('No resources found for this user');
+    }
+    return resources;
   }
 }
